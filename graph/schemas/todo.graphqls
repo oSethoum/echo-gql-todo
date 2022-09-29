@@ -1,0 +1,23 @@
+extend type Query {
+  Todo(id: ID!): Todo!
+}
+
+extend type Mutation {
+  createTodo(input: CreateTodoInput!): Todo!
+  updateTodo(id: ID!, input: UpdateTodoInput!): Todo!
+  deleteTodo(id: ID!): Todo!
+}
+
+input TodosQueryInput {
+  after: Cursor
+  first: Int
+  before: Cursor
+  last: Int
+  orderBy: TodoOrder
+  where: TodoWhereInput
+}
+
+extend type Subscription {
+  todos(event: Event!, query: TodosQueryInput): TodoConnection!
+  Todo(event: Event!, id: ID!): Todo!
+}
