@@ -9,7 +9,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm, FormErrors } from "@mantine/form";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   Event,
   useCreateTodoMutation,
@@ -35,11 +35,11 @@ export function HomePage() {
       event: Event.Create,
     },
   });
-
-  const [totalCount, setTotalCount] = useState(
-    todosResponse.data?.todos.totalCount || 0
-  );
-
+  const [deleted] = useTodosSubSubscription({
+    variables: {
+      event: Event.Delete,
+    },
+  });
   const [update] = useTodosSubSubscription({
     variables: {
       event: Event.Update,
@@ -51,9 +51,8 @@ export function HomePage() {
     },
   });
 
-  const [totalDone, setTotalDone] = useState(
-    todosResponse.data?.todos.totalCount || 0
-  );
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalDone, setTotalDone] = useState(0);
 
   useEffect(() => {
     console.log("Create Event ", create);
@@ -68,6 +67,24 @@ export function HomePage() {
         : count
     );
   }, [update]);
+
+  useEffect(() => {
+    console.log("Update Event ", update);
+    setTotalCount((count) =>
+      deleted.data?.todos.totalCount != undefined
+        ? deleted.data?.todos.totalCount
+        : count
+    );
+  }, [deleted]);
+
+  useEffect(() => {
+    setTotalCount((count) => todosResponse.data?.todos.totalCount ?? count);
+    setTotalDone(
+      (count) =>
+        todosResponse.data?.todos.edges?.filter((e) => e?.node?.done).length ??
+        count
+    );
+  }, [todosResponse]);
 
   return (
     <Box
@@ -98,10 +115,12 @@ export function HomePage() {
             <Button type="submit">add</Button>
           </Box>
         </form>
-        <Group my={5}>
-          <Text>Count: {totalCount}</Text>
-          <Text>Done: {totalDone}</Text>
-        </Group>
+        {todosResponse.data && (
+          <Group my={5}>
+            <Text>Count: {totalCount}</Text>
+            <Text>Done: {totalDone}</Text>
+          </Group>
+        )}
         <ScrollArea offsetScrollbars sx={{ height: 600 }}>
           {todosResponse.data?.todos.edges?.map((e, index) => (
             <Paper
