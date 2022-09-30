@@ -2,64 +2,7 @@
 
 package runtime
 
-import (
-	"context"
-	"time"
-	"todo/ent/schema"
-	"todo/ent/todo"
-	"todo/ent/user"
-
-	"entgo.io/ent"
-	"entgo.io/ent/privacy"
-)
-
-// The init function reads all schema descriptors with runtime code
-// (default values, validators, hooks and policies) and stitches it
-// to their package variables.
-func init() {
-	todo.Policy = privacy.NewPolicies(schema.Todo{})
-	todo.Hooks[0] = func(next ent.Mutator) ent.Mutator {
-		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-			if err := todo.Policy.EvalMutation(ctx, m); err != nil {
-				return nil, err
-			}
-			return next.Mutate(ctx, m)
-		})
-	}
-	todoFields := schema.Todo{}.Fields()
-	_ = todoFields
-	// todoDescCreatedAt is the schema descriptor for created_at field.
-	todoDescCreatedAt := todoFields[0].Descriptor()
-	// todo.DefaultCreatedAt holds the default value on creation for the created_at field.
-	todo.DefaultCreatedAt = todoDescCreatedAt.Default.(func() time.Time)
-	// todoDescUpdatedAt is the schema descriptor for updated_at field.
-	todoDescUpdatedAt := todoFields[1].Descriptor()
-	// todo.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	todo.DefaultUpdatedAt = todoDescUpdatedAt.Default.(func() time.Time)
-	// todoDescDone is the schema descriptor for done field.
-	todoDescDone := todoFields[3].Descriptor()
-	// todo.DefaultDone holds the default value on creation for the done field.
-	todo.DefaultDone = todoDescDone.Default.(bool)
-	user.Policy = privacy.NewPolicies(schema.User{})
-	user.Hooks[0] = func(next ent.Mutator) ent.Mutator {
-		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-			if err := user.Policy.EvalMutation(ctx, m); err != nil {
-				return nil, err
-			}
-			return next.Mutate(ctx, m)
-		})
-	}
-	userFields := schema.User{}.Fields()
-	_ = userFields
-	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[2].Descriptor()
-	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
-	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
-	// userDescUpdatedAt is the schema descriptor for updated_at field.
-	userDescUpdatedAt := userFields[3].Descriptor()
-	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
-}
+// The schema-stitching logic is generated in todo/ent/runtime.go
 
 const (
 	Version = "v0.11.3"                                         // Version of ent codegen.

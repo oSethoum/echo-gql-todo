@@ -14,17 +14,19 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
+var id = 0
+
+func ID() int {
+	id++
+	return id
+}
+
 type Resolver struct {
 	Client *ent.Client
 
-	UserListenners        map[string]UserListenner
-	UserListennersMutext  sync.Mutex
-	UsersListenners       map[string]UsersListenner
-	UsersListennersMutext sync.Mutex
-
-	TodoListenners        map[string]TodoListenner
+	TodoListenners        map[int]TodoListenner
 	TodoListennersMutext  sync.Mutex
-	TodosListenners       map[string]TodosListenner
+	TodosListenners       map[int]TodosListenner
 	TodosListennersMutext sync.Mutex
 }
 
@@ -36,14 +38,9 @@ func ExecutableSchema() graphql.ExecutableSchema {
 		*schema = generated.NewExecutableSchema(generated.Config{Resolvers: &Resolver{
 			Client: db.DB,
 
-			UserListenners:        make(map[string]UserListenner),
-			UserListennersMutext:  sync.Mutex{},
-			UsersListenners:       make(map[string]UsersListenner),
-			UsersListennersMutext: sync.Mutex{},
-
-			TodoListenners:        make(map[string]TodoListenner),
+			TodoListenners:        make(map[int]TodoListenner),
 			TodoListennersMutext:  sync.Mutex{},
-			TodosListenners:       make(map[string]TodosListenner),
+			TodosListenners:       make(map[int]TodosListenner),
 			TodosListennersMutext: sync.Mutex{},
 		}})
 	}

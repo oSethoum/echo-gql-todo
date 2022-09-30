@@ -1,0 +1,31 @@
+subscription TodoSub($event: Event!, $id: ID!) {
+  Todo(event: $event, id: $id) {
+    id
+    createdAt
+    updatedAt
+    text
+    done
+  }
+}
+
+subscription TodosSub($event: Event!, $query: TodosQueryInput) {
+  todos(event: $event, query: $query) {
+    edges {
+      node {
+        id
+        createdAt
+        updatedAt
+        text
+        done
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}

@@ -32,9 +32,8 @@ func PlaygroundWsHandler() echo.HandlerFunc {
 	}
 }
 
-func GraphqlHandler(client *ent.Client) echo.HandlerFunc {
-	h := handler.NewDefaultServer(resolvers.ExecutableSchema())
-	h.Use(entgql.Transactioner{TxOpener: client})
+func GraphqlWsHandler(client *ent.Client) echo.HandlerFunc {
+	h := handler.New(resolvers.ExecutableSchema())
 	h.Use(extension.Introspection{})
 	h.AddTransport(transport.POST{})
 	h.AddTransport(&transport.Websocket{
@@ -44,7 +43,20 @@ func GraphqlHandler(client *ent.Client) echo.HandlerFunc {
 				return true
 			},
 		},
+		// InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
+		// 	return auth.WebSocketInit(ctx, initPayload)
+		// },
 	})
+	return func(c echo.Context) error {
+		h.ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
+}
+
+func GraphqlHandler(client *ent.Client) echo.HandlerFunc {
+	h := handler.NewDefaultServer(resolvers.ExecutableSchema())
+	h.Use(entgql.Transactioner{TxOpener: client})
+	h.Use(extension.Introspection{})
 
 	return func(c echo.Context) error {
 		h.ServeHTTP(c.Response(), c.Request())

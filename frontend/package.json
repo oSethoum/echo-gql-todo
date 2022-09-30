@@ -1,0 +1,52 @@
+{
+  "name": "react-mantine-urql-i18n",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "generate": "graphql-codegen --config codegen.yml"
+  },
+  "dependencies": {
+    "@mantine/carousel": "5.4.2",
+    "@mantine/core": "5.4.2",
+    "@mantine/dates": "5.4.2",
+    "@mantine/dropzone": "5.4.2",
+    "@mantine/form": "5.4.2",
+    "@mantine/hooks": "5.4.2",
+    "@mantine/modals": "5.4.2",
+    "@mantine/notifications": "5.4.2",
+    "@mantine/nprogress": "5.4.2",
+    "@mantine/prism": "5.4.2",
+    "@mantine/rte": "5.4.2",
+    "@mantine/spotlight": "5.4.2",
+    "@tabler/icons": "^1.101.0",
+    "dayjs": "^1.11.5",
+    "embla-carousel-react": "^7.0.3",
+    "graphql": "^16.6.0",
+    "graphql-tag": "^2.12.6",
+    "graphql-ws": "^5.11.2",
+    "i18next": "^21.9.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^11.18.6",
+    "react-router-dom": "^6.4.1",
+    "stylis": "^4.1.2",
+    "stylis-plugin-rtl": "^2.1.1",
+    "urql": "^3.0.3"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "2.13.1",
+    "@graphql-codegen/typescript": "2.7.3",
+    "@graphql-codegen/typescript-operations": "2.5.3",
+    "@graphql-codegen/typescript-urql": "^3.7.0",
+    "@graphql-codegen/urql-introspection": "2.2.1",
+    "@types/node": "^18.7.23",
+    "@types/react": "^18.0.21",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^2.1.0",
+    "typescript": "^4.8.4",
+    "vite": "^3.1.4"
+  }
+}

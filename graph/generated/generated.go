@@ -50,11 +50,8 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateTodo func(childComplexity int, input ent.CreateTodoInput) int
-		CreateUser func(childComplexity int, input ent.CreateUserInput) int
 		DeleteTodo func(childComplexity int, id int) int
-		DeleteUser func(childComplexity int, id int) int
 		UpdateTodo func(childComplexity int, id int, input ent.UpdateTodoInput) int
-		UpdateUser func(childComplexity int, id int, input ent.UpdateUserInput) int
 	}
 
 	PageInfo struct {
@@ -69,15 +66,11 @@ type ComplexityRoot struct {
 		Nodes func(childComplexity int, ids []int) int
 		Todo  func(childComplexity int, id int) int
 		Todos func(childComplexity int, after *ent.Cursor, first *int, before *ent.Cursor, last *int, orderBy *ent.TodoOrder, where *ent.TodoWhereInput) int
-		User  func(childComplexity int, id int) int
-		Users func(childComplexity int, after *ent.Cursor, first *int, before *ent.Cursor, last *int, orderBy *ent.UserOrder, where *ent.UserWhereInput) int
 	}
 
 	Subscription struct {
 		Todo  func(childComplexity int, event models.Event, id int) int
 		Todos func(childComplexity int, event models.Event, query *models.TodosQueryInput) int
-		User  func(childComplexity int, event models.Event, id int) int
-		Users func(childComplexity int, event models.Event, query *models.UsersQueryInput) int
 	}
 
 	Todo struct {
@@ -86,7 +79,6 @@ type ComplexityRoot struct {
 		ID        func(childComplexity int) int
 		Text      func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
-		User      func(childComplexity int) int
 	}
 
 	TodoConnection struct {
@@ -99,48 +91,22 @@ type ComplexityRoot struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
 	}
-
-	User struct {
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Todos     func(childComplexity int, after *ent.Cursor, first *int, before *ent.Cursor, last *int, orderBy *ent.TodoOrder, where *ent.TodoWhereInput) int
-		UpdatedAt func(childComplexity int) int
-		Username  func(childComplexity int) int
-	}
-
-	UserConnection struct {
-		Edges      func(childComplexity int) int
-		PageInfo   func(childComplexity int) int
-		TotalCount func(childComplexity int) int
-	}
-
-	UserEdge struct {
-		Cursor func(childComplexity int) int
-		Node   func(childComplexity int) int
-	}
 }
 
 type MutationResolver interface {
 	CreateTodo(ctx context.Context, input ent.CreateTodoInput) (*ent.Todo, error)
 	UpdateTodo(ctx context.Context, id int, input ent.UpdateTodoInput) (*ent.Todo, error)
 	DeleteTodo(ctx context.Context, id int) (*ent.Todo, error)
-	CreateUser(ctx context.Context, input ent.CreateUserInput) (*ent.User, error)
-	UpdateUser(ctx context.Context, id int, input ent.UpdateUserInput) (*ent.User, error)
-	DeleteUser(ctx context.Context, id int) (*ent.User, error)
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id int) (ent.Noder, error)
 	Nodes(ctx context.Context, ids []int) ([]ent.Noder, error)
 	Todos(ctx context.Context, after *ent.Cursor, first *int, before *ent.Cursor, last *int, orderBy *ent.TodoOrder, where *ent.TodoWhereInput) (*ent.TodoConnection, error)
-	Users(ctx context.Context, after *ent.Cursor, first *int, before *ent.Cursor, last *int, orderBy *ent.UserOrder, where *ent.UserWhereInput) (*ent.UserConnection, error)
 	Todo(ctx context.Context, id int) (*ent.Todo, error)
-	User(ctx context.Context, id int) (*ent.User, error)
 }
 type SubscriptionResolver interface {
 	Todos(ctx context.Context, event models.Event, query *models.TodosQueryInput) (<-chan *ent.TodoConnection, error)
 	Todo(ctx context.Context, event models.Event, id int) (<-chan *ent.Todo, error)
-	Users(ctx context.Context, event models.Event, query *models.UsersQueryInput) (<-chan *ent.UserConnection, error)
-	User(ctx context.Context, event models.Event, id int) (<-chan *ent.User, error)
 }
 
 type executableSchema struct {
@@ -170,18 +136,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateTodo(childComplexity, args["input"].(ent.CreateTodoInput)), true
 
-	case "Mutation.createUser":
-		if e.complexity.Mutation.CreateUser == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createUser_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(ent.CreateUserInput)), true
-
 	case "Mutation.deleteTodo":
 		if e.complexity.Mutation.DeleteTodo == nil {
 			break
@@ -194,18 +148,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteTodo(childComplexity, args["id"].(int)), true
 
-	case "Mutation.deleteUser":
-		if e.complexity.Mutation.DeleteUser == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_deleteUser_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.DeleteUser(childComplexity, args["id"].(int)), true
-
 	case "Mutation.updateTodo":
 		if e.complexity.Mutation.UpdateTodo == nil {
 			break
@@ -217,18 +159,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateTodo(childComplexity, args["id"].(int), args["input"].(ent.UpdateTodoInput)), true
-
-	case "Mutation.updateUser":
-		if e.complexity.Mutation.UpdateUser == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateUser_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(int), args["input"].(ent.UpdateUserInput)), true
 
 	case "PageInfo.endCursor":
 		if e.complexity.PageInfo.EndCursor == nil {
@@ -306,30 +236,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Todos(childComplexity, args["after"].(*ent.Cursor), args["first"].(*int), args["before"].(*ent.Cursor), args["last"].(*int), args["orderBy"].(*ent.TodoOrder), args["where"].(*ent.TodoWhereInput)), true
 
-	case "Query.User":
-		if e.complexity.Query.User == nil {
-			break
-		}
-
-		args, err := ec.field_Query_User_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.User(childComplexity, args["id"].(int)), true
-
-	case "Query.users":
-		if e.complexity.Query.Users == nil {
-			break
-		}
-
-		args, err := ec.field_Query_users_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Users(childComplexity, args["after"].(*ent.Cursor), args["first"].(*int), args["before"].(*ent.Cursor), args["last"].(*int), args["orderBy"].(*ent.UserOrder), args["where"].(*ent.UserWhereInput)), true
-
 	case "Subscription.Todo":
 		if e.complexity.Subscription.Todo == nil {
 			break
@@ -353,30 +259,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Subscription.Todos(childComplexity, args["event"].(models.Event), args["query"].(*models.TodosQueryInput)), true
-
-	case "Subscription.User":
-		if e.complexity.Subscription.User == nil {
-			break
-		}
-
-		args, err := ec.field_Subscription_User_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Subscription.User(childComplexity, args["event"].(models.Event), args["id"].(int)), true
-
-	case "Subscription.users":
-		if e.complexity.Subscription.Users == nil {
-			break
-		}
-
-		args, err := ec.field_Subscription_users_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Subscription.Users(childComplexity, args["event"].(models.Event), args["query"].(*models.UsersQueryInput)), true
 
 	case "Todo.createdAt":
 		if e.complexity.Todo.CreatedAt == nil {
@@ -413,13 +295,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Todo.UpdatedAt(childComplexity), true
 
-	case "Todo.user":
-		if e.complexity.Todo.User == nil {
-			break
-		}
-
-		return e.complexity.Todo.User(childComplexity), true
-
 	case "TodoConnection.edges":
 		if e.complexity.TodoConnection.Edges == nil {
 			break
@@ -455,81 +330,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TodoEdge.Node(childComplexity), true
 
-	case "User.createdAt":
-		if e.complexity.User.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.User.CreatedAt(childComplexity), true
-
-	case "User.id":
-		if e.complexity.User.ID == nil {
-			break
-		}
-
-		return e.complexity.User.ID(childComplexity), true
-
-	case "User.todos":
-		if e.complexity.User.Todos == nil {
-			break
-		}
-
-		args, err := ec.field_User_todos_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.User.Todos(childComplexity, args["after"].(*ent.Cursor), args["first"].(*int), args["before"].(*ent.Cursor), args["last"].(*int), args["orderBy"].(*ent.TodoOrder), args["where"].(*ent.TodoWhereInput)), true
-
-	case "User.updatedAt":
-		if e.complexity.User.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.User.UpdatedAt(childComplexity), true
-
-	case "User.username":
-		if e.complexity.User.Username == nil {
-			break
-		}
-
-		return e.complexity.User.Username(childComplexity), true
-
-	case "UserConnection.edges":
-		if e.complexity.UserConnection.Edges == nil {
-			break
-		}
-
-		return e.complexity.UserConnection.Edges(childComplexity), true
-
-	case "UserConnection.pageInfo":
-		if e.complexity.UserConnection.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.UserConnection.PageInfo(childComplexity), true
-
-	case "UserConnection.totalCount":
-		if e.complexity.UserConnection.TotalCount == nil {
-			break
-		}
-
-		return e.complexity.UserConnection.TotalCount(childComplexity), true
-
-	case "UserEdge.cursor":
-		if e.complexity.UserEdge.Cursor == nil {
-			break
-		}
-
-		return e.complexity.UserEdge.Cursor(childComplexity), true
-
-	case "UserEdge.node":
-		if e.complexity.UserEdge.Node == nil {
-			break
-		}
-
-		return e.complexity.UserEdge.Node(childComplexity), true
-
 	}
 	return 0, false
 }
@@ -539,15 +339,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCreateTodoInput,
-		ec.unmarshalInputCreateUserInput,
 		ec.unmarshalInputTodoOrder,
 		ec.unmarshalInputTodoWhereInput,
 		ec.unmarshalInputTodosQueryInput,
 		ec.unmarshalInputUpdateTodoInput,
-		ec.unmarshalInputUpdateUserInput,
-		ec.unmarshalInputUserOrder,
-		ec.unmarshalInputUserWhereInput,
-		ec.unmarshalInputUsersQueryInput,
 	)
 	first := true
 
@@ -625,15 +420,14 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schemas/generated.graphqls", Input: `scalar Time
-
-enum Event {
-   CREATE
-   UPDATE
-   DELETE
-}`, BuiltIn: false},
-	{Name: "../schemas/schema.graphqls", Input: `directive @goField(forceResolver: Boolean, name: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
-directive @goModel(model: String, models: [String!]) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+	{Name: "../schemas/schema.graphqls", Input: `directive @goField(
+  forceResolver: Boolean
+  name: String
+) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @goModel(
+  model: String
+  models: [String!]
+) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
 """
 CreateTodoInput is used for create Todo object.
 Input was generated by ent.
@@ -641,16 +435,6 @@ Input was generated by ent.
 input CreateTodoInput {
   text: String!
   done: Boolean
-  userID: ID
-}
-"""
-CreateUserInput is used for create User object.
-Input was generated by ent.
-"""
-input CreateUserInput {
-  username: String!
-  password: String!
-  todoIDs: [ID!]
 }
 """
 Define a Relay Cursor type:
@@ -662,14 +446,22 @@ An object with an ID.
 Follows the [Relay Global Object Identification Specification](https://relay.dev/graphql/objectidentification.htm)
 """
 interface Node @goModel(model: "todo/ent.Noder") {
-  """The id of the object."""
+  """
+  The id of the object.
+  """
   id: ID!
 }
-"""Possible directions in which to order a list of items when provided an ` + "`" + `orderBy` + "`" + ` argument."""
+"""
+Possible directions in which to order a list of items when provided an ` + "`" + `orderBy` + "`" + ` argument.
+"""
 enum OrderDirection {
-  """Specifies an ascending order for a given ` + "`" + `orderBy` + "`" + ` argument."""
+  """
+  Specifies an ascending order for a given ` + "`" + `orderBy` + "`" + ` argument.
+  """
   ASC
-  """Specifies a descending order for a given ` + "`" + `orderBy` + "`" + ` argument."""
+  """
+  Specifies a descending order for a given ` + "`" + `orderBy` + "`" + ` argument.
+  """
   DESC
 }
 """
@@ -677,64 +469,73 @@ Information about pagination in a connection.
 https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo
 """
 type PageInfo {
-  """When paginating forwards, are there more items?"""
+  """
+  When paginating forwards, are there more items?
+  """
   hasNextPage: Boolean!
-  """When paginating backwards, are there more items?"""
+  """
+  When paginating backwards, are there more items?
+  """
   hasPreviousPage: Boolean!
-  """When paginating backwards, the cursor to continue."""
+  """
+  When paginating backwards, the cursor to continue.
+  """
   startCursor: Cursor
-  """When paginating forwards, the cursor to continue."""
+  """
+  When paginating forwards, the cursor to continue.
+  """
   endCursor: Cursor
 }
 type Query {
-  """Fetches an object given its ID."""
+  """
+  Fetches an object given its ID.
+  """
   node(
-    """ID of the object."""
+    """
+    ID of the object.
+    """
     id: ID!
   ): Node
-  """Lookup nodes by a list of IDs."""
+  """
+  Lookup nodes by a list of IDs.
+  """
   nodes(
-    """The list of node IDs."""
+    """
+    The list of node IDs.
+    """
     ids: [ID!]!
   ): [Node]!
   todos(
-    """Returns the elements in the list that come after the specified cursor."""
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
     after: Cursor
 
-    """Returns the first _n_ elements from the list."""
+    """
+    Returns the first _n_ elements from the list.
+    """
     first: Int
 
-    """Returns the elements in the list that come before the specified cursor."""
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
     before: Cursor
 
-    """Returns the last _n_ elements from the list."""
+    """
+    Returns the last _n_ elements from the list.
+    """
     last: Int
 
-    """Ordering options for Todos returned from the connection."""
+    """
+    Ordering options for Todos returned from the connection.
+    """
     orderBy: TodoOrder
 
-    """Filtering options for Todos returned from the connection."""
+    """
+    Filtering options for Todos returned from the connection.
+    """
     where: TodoWhereInput
   ): TodoConnection!
-  users(
-    """Returns the elements in the list that come after the specified cursor."""
-    after: Cursor
-
-    """Returns the first _n_ elements from the list."""
-    first: Int
-
-    """Returns the elements in the list that come before the specified cursor."""
-    before: Cursor
-
-    """Returns the last _n_ elements from the list."""
-    last: Int
-
-    """Ordering options for Users returned from the connection."""
-    orderBy: UserOrder
-
-    """Filtering options for Users returned from the connection."""
-    where: UserWhereInput
-  ): UserConnection!
 }
 type Todo implements Node {
   id: ID!
@@ -742,32 +543,53 @@ type Todo implements Node {
   updatedAt: Time!
   text: String!
   done: Boolean!
-  user: User
 }
-"""A connection to a list of items."""
+"""
+A connection to a list of items.
+"""
 type TodoConnection {
-  """A list of edges."""
+  """
+  A list of edges.
+  """
   edges: [TodoEdge]
-  """Information to aid in pagination."""
+  """
+  Information to aid in pagination.
+  """
   pageInfo: PageInfo!
-  """Identifies the total count of items in the connection."""
+  """
+  Identifies the total count of items in the connection.
+  """
   totalCount: Int!
 }
-"""An edge in a connection."""
+"""
+An edge in a connection.
+"""
 type TodoEdge {
-  """The item at the end of the edge."""
+  """
+  The item at the end of the edge.
+  """
   node: Todo
-  """A cursor for use in pagination."""
+  """
+  A cursor for use in pagination.
+  """
   cursor: Cursor!
 }
-"""Ordering options for Todo connections"""
+"""
+Ordering options for Todo connections
+"""
 input TodoOrder {
-  """The ordering direction."""
+  """
+  The ordering direction.
+  """
   direction: OrderDirection! = ASC
-  """The field by which to order Todos."""
+  """
+  The field by which to order Todos.
+  """
   field: TodoOrderField!
 }
-"""Properties by which Todo connections can be ordered."""
+"""
+Properties by which Todo connections can be ordered.
+"""
 enum TodoOrderField {
   CREATED_AT
   UPDATED_AT
@@ -782,7 +604,9 @@ input TodoWhereInput {
   not: TodoWhereInput
   and: [TodoWhereInput!]
   or: [TodoWhereInput!]
-  """id field predicates"""
+  """
+  id field predicates
+  """
   id: ID
   idNEQ: ID
   idIn: [ID!]
@@ -791,7 +615,9 @@ input TodoWhereInput {
   idGTE: ID
   idLT: ID
   idLTE: ID
-  """created_at field predicates"""
+  """
+  created_at field predicates
+  """
   createdAt: Time
   createdAtNEQ: Time
   createdAtIn: [Time!]
@@ -800,7 +626,9 @@ input TodoWhereInput {
   createdAtGTE: Time
   createdAtLT: Time
   createdAtLTE: Time
-  """updated_at field predicates"""
+  """
+  updated_at field predicates
+  """
   updatedAt: Time
   updatedAtNEQ: Time
   updatedAtIn: [Time!]
@@ -809,7 +637,9 @@ input TodoWhereInput {
   updatedAtGTE: Time
   updatedAtLT: Time
   updatedAtLTE: Time
-  """text field predicates"""
+  """
+  text field predicates
+  """
   text: String
   textNEQ: String
   textIn: [String!]
@@ -823,12 +653,11 @@ input TodoWhereInput {
   textHasSuffix: String
   textEqualFold: String
   textContainsFold: String
-  """done field predicates"""
+  """
+  done field predicates
+  """
   done: Boolean
   doneNEQ: Boolean
-  """user edge predicates"""
-  hasUser: Boolean
-  hasUserWith: [UserWhereInput!]
 }
 """
 UpdateTodoInput is used for update Todo object.
@@ -837,125 +666,6 @@ Input was generated by ent.
 input UpdateTodoInput {
   text: String
   done: Boolean
-  clearUser: Boolean
-  userID: ID
-}
-"""
-UpdateUserInput is used for update User object.
-Input was generated by ent.
-"""
-input UpdateUserInput {
-  username: String
-  password: String
-  addTodoIDs: [ID!]
-  removeTodoIDs: [ID!]
-}
-type User implements Node {
-  id: ID!
-  username: String!
-  createdAt: Time!
-  updatedAt: Time!
-  todos(
-    """Returns the elements in the list that come after the specified cursor."""
-    after: Cursor
-
-    """Returns the first _n_ elements from the list."""
-    first: Int
-
-    """Returns the elements in the list that come before the specified cursor."""
-    before: Cursor
-
-    """Returns the last _n_ elements from the list."""
-    last: Int
-
-    """Ordering options for Todos returned from the connection."""
-    orderBy: TodoOrder
-
-    """Filtering options for Todos returned from the connection."""
-    where: TodoWhereInput
-  ): TodoConnection!
-}
-"""A connection to a list of items."""
-type UserConnection {
-  """A list of edges."""
-  edges: [UserEdge]
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-  """Identifies the total count of items in the connection."""
-  totalCount: Int!
-}
-"""An edge in a connection."""
-type UserEdge {
-  """The item at the end of the edge."""
-  node: User
-  """A cursor for use in pagination."""
-  cursor: Cursor!
-}
-"""Ordering options for User connections"""
-input UserOrder {
-  """The ordering direction."""
-  direction: OrderDirection! = ASC
-  """The field by which to order Users."""
-  field: UserOrderField!
-}
-"""Properties by which User connections can be ordered."""
-enum UserOrderField {
-  USERNAME
-  CREATED_AT
-  UPDATED_AT
-}
-"""
-UserWhereInput is used for filtering User objects.
-Input was generated by ent.
-"""
-input UserWhereInput {
-  not: UserWhereInput
-  and: [UserWhereInput!]
-  or: [UserWhereInput!]
-  """id field predicates"""
-  id: ID
-  idNEQ: ID
-  idIn: [ID!]
-  idNotIn: [ID!]
-  idGT: ID
-  idGTE: ID
-  idLT: ID
-  idLTE: ID
-  """username field predicates"""
-  username: String
-  usernameNEQ: String
-  usernameIn: [String!]
-  usernameNotIn: [String!]
-  usernameGT: String
-  usernameGTE: String
-  usernameLT: String
-  usernameLTE: String
-  usernameContains: String
-  usernameHasPrefix: String
-  usernameHasSuffix: String
-  usernameEqualFold: String
-  usernameContainsFold: String
-  """created_at field predicates"""
-  createdAt: Time
-  createdAtNEQ: Time
-  createdAtIn: [Time!]
-  createdAtNotIn: [Time!]
-  createdAtGT: Time
-  createdAtGTE: Time
-  createdAtLT: Time
-  createdAtLTE: Time
-  """updated_at field predicates"""
-  updatedAt: Time
-  updatedAtNEQ: Time
-  updatedAtIn: [Time!]
-  updatedAtNotIn: [Time!]
-  updatedAtGT: Time
-  updatedAtGTE: Time
-  updatedAtLT: Time
-  updatedAtLTE: Time
-  """todos edge predicates"""
-  hasTodos: Boolean
-  hasTodosWith: [TodoWhereInput!]
 }
 `, BuiltIn: false},
 	{Name: "../schemas/todo.graphqls", Input: `extend type Query {
@@ -980,30 +690,16 @@ input TodosQueryInput {
 extend type Subscription {
   todos(event: Event!, query: TodosQueryInput): TodoConnection!
   Todo(event: Event!, id: ID!): Todo!
-}`, BuiltIn: false},
-	{Name: "../schemas/user.graphqls", Input: `extend type Query {
-  User(id: ID!): User!
 }
+`, BuiltIn: false},
+	{Name: "../schemas/types.graphqls", Input: `scalar Time
 
-extend type Mutation {
-  createUser(input: CreateUserInput!): User!
-  updateUser(id: ID!, input: UpdateUserInput!): User!
-  deleteUser(id: ID!): User!
+enum Event {
+  CREATE
+  UPDATE
+  DELETE
 }
-
-input UsersQueryInput {
-  after: Cursor
-  first: Int
-  before: Cursor
-  last: Int
-  orderBy: UserOrder
-  where: UserWhereInput
-}
-
-extend type Subscription {
-  users(event: Event!, query: UsersQueryInput): UserConnection!
-  User(event: Event!, id: ID!): User!
-}`, BuiltIn: false},
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -1026,37 +722,7 @@ func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 ent.CreateUserInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateUserInput2todoᚋentᚐCreateUserInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_deleteTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 int
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 int
@@ -1095,46 +761,7 @@ func (ec *executionContext) field_Mutation_updateTodo_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 int
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	var arg1 ent.UpdateUserInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNUpdateUserInput2todoᚋentᚐUpdateUserInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg1
-	return args, nil
-}
-
 func (ec *executionContext) field_Query_Todo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 int
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_User_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 int
@@ -1254,91 +881,7 @@ func (ec *executionContext) field_Query_todos_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *ent.Cursor
-	if tmp, ok := rawArgs["after"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-		arg0, err = ec.unmarshalOCursor2ᚖtodoᚋentᚐCursor(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["after"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["first"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["first"] = arg1
-	var arg2 *ent.Cursor
-	if tmp, ok := rawArgs["before"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-		arg2, err = ec.unmarshalOCursor2ᚖtodoᚋentᚐCursor(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["before"] = arg2
-	var arg3 *int
-	if tmp, ok := rawArgs["last"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["last"] = arg3
-	var arg4 *ent.UserOrder
-	if tmp, ok := rawArgs["orderBy"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg4, err = ec.unmarshalOUserOrder2ᚖtodoᚋentᚐUserOrder(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["orderBy"] = arg4
-	var arg5 *ent.UserWhereInput
-	if tmp, ok := rawArgs["where"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-		arg5, err = ec.unmarshalOUserWhereInput2ᚖtodoᚋentᚐUserWhereInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["where"] = arg5
-	return args, nil
-}
-
 func (ec *executionContext) field_Subscription_Todo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 models.Event
-	if tmp, ok := rawArgs["event"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("event"))
-		arg0, err = ec.unmarshalNEvent2todoᚋgraphᚋmodelsᚐEvent(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["event"] = arg0
-	var arg1 int
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg1, err = ec.unmarshalNID2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Subscription_User_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 models.Event
@@ -1383,90 +926,6 @@ func (ec *executionContext) field_Subscription_todos_args(ctx context.Context, r
 		}
 	}
 	args["query"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Subscription_users_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 models.Event
-	if tmp, ok := rawArgs["event"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("event"))
-		arg0, err = ec.unmarshalNEvent2todoᚋgraphᚋmodelsᚐEvent(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["event"] = arg0
-	var arg1 *models.UsersQueryInput
-	if tmp, ok := rawArgs["query"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
-		arg1, err = ec.unmarshalOUsersQueryInput2ᚖtodoᚋgraphᚋmodelsᚐUsersQueryInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["query"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_User_todos_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *ent.Cursor
-	if tmp, ok := rawArgs["after"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-		arg0, err = ec.unmarshalOCursor2ᚖtodoᚋentᚐCursor(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["after"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["first"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["first"] = arg1
-	var arg2 *ent.Cursor
-	if tmp, ok := rawArgs["before"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-		arg2, err = ec.unmarshalOCursor2ᚖtodoᚋentᚐCursor(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["before"] = arg2
-	var arg3 *int
-	if tmp, ok := rawArgs["last"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["last"] = arg3
-	var arg4 *ent.TodoOrder
-	if tmp, ok := rawArgs["orderBy"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-		arg4, err = ec.unmarshalOTodoOrder2ᚖtodoᚋentᚐTodoOrder(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["orderBy"] = arg4
-	var arg5 *ent.TodoWhereInput
-	if tmp, ok := rawArgs["where"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-		arg5, err = ec.unmarshalOTodoWhereInput2ᚖtodoᚋentᚐTodoWhereInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["where"] = arg5
 	return args, nil
 }
 
@@ -1557,8 +1016,6 @@ func (ec *executionContext) fieldContext_Mutation_createTodo(ctx context.Context
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -1626,8 +1083,6 @@ func (ec *executionContext) fieldContext_Mutation_updateTodo(ctx context.Context
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -1695,8 +1150,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteTodo(ctx context.Context
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -1709,207 +1162,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteTodo(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteTodo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createUser(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(ent.CreateUserInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*ent.User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖtodoᚋentᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
-			case "todos":
-				return ec.fieldContext_User_todos(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateUser(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUser(rctx, fc.Args["id"].(int), fc.Args["input"].(ent.UpdateUserInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*ent.User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖtodoᚋentᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
-			case "todos":
-				return ec.fieldContext_User_todos(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteUser(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteUser(rctx, fc.Args["id"].(int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*ent.User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖtodoᚋentᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_deleteUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
-			case "todos":
-				return ec.fieldContext_User_todos(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -2256,69 +1508,6 @@ func (ec *executionContext) fieldContext_Query_todos(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_users(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Users(rctx, fc.Args["after"].(*ent.Cursor), fc.Args["first"].(*int), fc.Args["before"].(*ent.Cursor), fc.Args["last"].(*int), fc.Args["orderBy"].(*ent.UserOrder), fc.Args["where"].(*ent.UserWhereInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*ent.UserConnection)
-	fc.Result = res
-	return ec.marshalNUserConnection2ᚖtodoᚋentᚐUserConnection(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "edges":
-				return ec.fieldContext_UserConnection_edges(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_UserConnection_pageInfo(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_UserConnection_totalCount(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UserConnection", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_users_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_Todo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_Todo(ctx, field)
 	if err != nil {
@@ -2368,8 +1557,6 @@ func (ec *executionContext) fieldContext_Query_Todo(ctx context.Context, field g
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -2382,73 +1569,6 @@ func (ec *executionContext) fieldContext_Query_Todo(ctx context.Context, field g
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_Todo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_User(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_User(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().User(rctx, fc.Args["id"].(int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*ent.User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖtodoᚋentᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_User(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
-			case "todos":
-				return ec.fieldContext_User_todos(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_User_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -2724,8 +1844,6 @@ func (ec *executionContext) fieldContext_Subscription_Todo(ctx context.Context, 
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -2738,164 +1856,6 @@ func (ec *executionContext) fieldContext_Subscription_Todo(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Subscription_Todo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Subscription_users(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
-	fc, err := ec.fieldContext_Subscription_users(ctx, field)
-	if err != nil {
-		return nil
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = nil
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().Users(rctx, fc.Args["event"].(models.Event), fc.Args["query"].(*models.UsersQueryInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return nil
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return nil
-	}
-	return func(ctx context.Context) graphql.Marshaler {
-		select {
-		case res, ok := <-resTmp.(<-chan *ent.UserConnection):
-			if !ok {
-				return nil
-			}
-			return graphql.WriterFunc(func(w io.Writer) {
-				w.Write([]byte{'{'})
-				graphql.MarshalString(field.Alias).MarshalGQL(w)
-				w.Write([]byte{':'})
-				ec.marshalNUserConnection2ᚖtodoᚋentᚐUserConnection(ctx, field.Selections, res).MarshalGQL(w)
-				w.Write([]byte{'}'})
-			})
-		case <-ctx.Done():
-			return nil
-		}
-	}
-}
-
-func (ec *executionContext) fieldContext_Subscription_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Subscription",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "edges":
-				return ec.fieldContext_UserConnection_edges(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_UserConnection_pageInfo(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_UserConnection_totalCount(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UserConnection", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Subscription_users_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Subscription_User(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
-	fc, err := ec.fieldContext_Subscription_User(ctx, field)
-	if err != nil {
-		return nil
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = nil
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().User(rctx, fc.Args["event"].(models.Event), fc.Args["id"].(int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return nil
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return nil
-	}
-	return func(ctx context.Context) graphql.Marshaler {
-		select {
-		case res, ok := <-resTmp.(<-chan *ent.User):
-			if !ok {
-				return nil
-			}
-			return graphql.WriterFunc(func(w io.Writer) {
-				w.Write([]byte{'{'})
-				graphql.MarshalString(field.Alias).MarshalGQL(w)
-				w.Write([]byte{':'})
-				ec.marshalNUser2ᚖtodoᚋentᚐUser(ctx, field.Selections, res).MarshalGQL(w)
-				w.Write([]byte{'}'})
-			})
-		case <-ctx.Done():
-			return nil
-		}
-	}
-}
-
-func (ec *executionContext) fieldContext_Subscription_User(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Subscription",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
-			case "todos":
-				return ec.fieldContext_User_todos(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Subscription_User_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -3122,59 +2082,6 @@ func (ec *executionContext) fieldContext_Todo_done(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Todo_user(ctx context.Context, field graphql.CollectedField, obj *ent.Todo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Todo_user(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.User(ctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*ent.User)
-	fc.Result = res
-	return ec.marshalOUser2ᚖtodoᚋentᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Todo_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Todo",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
-			case "todos":
-				return ec.fieldContext_User_todos(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TodoConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.TodoConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TodoConnection_edges(ctx, field)
 	if err != nil {
@@ -3366,8 +2273,6 @@ func (ec *executionContext) fieldContext_TodoEdge_node(ctx context.Context, fiel
 				return ec.fieldContext_Todo_text(ctx, field)
 			case "done":
 				return ec.fieldContext_Todo_done(ctx, field)
-			case "user":
-				return ec.fieldContext_Todo_user(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 		},
@@ -3409,487 +2314,6 @@ func (ec *executionContext) _TodoEdge_cursor(ctx context.Context, field graphql.
 func (ec *executionContext) fieldContext_TodoEdge_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TodoEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Cursor does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *ent.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNID2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_username(ctx context.Context, field graphql.CollectedField, obj *ent.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_username(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Username, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *ent.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *ent.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_updatedAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_todos(ctx context.Context, field graphql.CollectedField, obj *ent.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_todos(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Todos(ctx, fc.Args["after"].(*ent.Cursor), fc.Args["first"].(*int), fc.Args["before"].(*ent.Cursor), fc.Args["last"].(*int), fc.Args["orderBy"].(*ent.TodoOrder), fc.Args["where"].(*ent.TodoWhereInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*ent.TodoConnection)
-	fc.Result = res
-	return ec.marshalNTodoConnection2ᚖtodoᚋentᚐTodoConnection(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_todos(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "edges":
-				return ec.fieldContext_TodoConnection_edges(ctx, field)
-			case "pageInfo":
-				return ec.fieldContext_TodoConnection_pageInfo(ctx, field)
-			case "totalCount":
-				return ec.fieldContext_TodoConnection_totalCount(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TodoConnection", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_User_todos_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserConnection_edges(ctx context.Context, field graphql.CollectedField, obj *ent.UserConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserConnection_edges(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Edges, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*ent.UserEdge)
-	fc.Result = res
-	return ec.marshalOUserEdge2ᚕᚖtodoᚋentᚐUserEdge(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserConnection_edges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "node":
-				return ec.fieldContext_UserEdge_node(ctx, field)
-			case "cursor":
-				return ec.fieldContext_UserEdge_cursor(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UserEdge", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *ent.UserConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserConnection_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ent.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2todoᚋentᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserConnection_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			case "hasPreviousPage":
-				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
-			case "startCursor":
-				return ec.fieldContext_PageInfo_startCursor(ctx, field)
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *ent.UserConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserConnection_totalCount(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TotalCount, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserConnection_totalCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserEdge_node(ctx context.Context, field graphql.CollectedField, obj *ent.UserEdge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserEdge_node(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Node, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*ent.User)
-	fc.Result = res
-	return ec.marshalOUser2ᚖtodoᚋentᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
-			case "todos":
-				return ec.fieldContext_User_todos(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *ent.UserEdge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserEdge_cursor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Cursor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ent.Cursor)
-	fc.Result = res
-	return ec.marshalNCursor2todoᚋentᚐCursor(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserEdge_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -5680,7 +4104,7 @@ func (ec *executionContext) unmarshalInputCreateTodoInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"text", "done", "userID"}
+	fieldsInOrder := [...]string{"text", "done"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5700,58 +4124,6 @@ func (ec *executionContext) unmarshalInputCreateTodoInput(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("done"))
 			it.Done, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userID":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
-			it.UserID, err = ec.unmarshalOID2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, obj interface{}) (ent.CreateUserInput, error) {
-	var it ent.CreateUserInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"username", "password", "todoIDs"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "username":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			it.Username, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "password":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "todoIDs":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoIDs"))
-			it.TodoIDs, err = ec.unmarshalOID2ᚕintᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5808,7 +4180,7 @@ func (ec *executionContext) unmarshalInputTodoWhereInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "text", "textNEQ", "textIn", "textNotIn", "textGT", "textGTE", "textLT", "textLTE", "textContains", "textHasPrefix", "textHasSuffix", "textEqualFold", "textContainsFold", "done", "doneNEQ", "hasUser", "hasUserWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "text", "textNEQ", "textIn", "textNotIn", "textGT", "textGTE", "textLT", "textLTE", "textContains", "textHasPrefix", "textHasSuffix", "textEqualFold", "textContainsFold", "done", "doneNEQ"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -6151,22 +4523,6 @@ func (ec *executionContext) unmarshalInputTodoWhereInput(ctx context.Context, ob
 			if err != nil {
 				return it, err
 			}
-		case "hasUser":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasUser"))
-			it.HasUser, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "hasUserWith":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasUserWith"))
-			it.HasUserWith, err = ec.unmarshalOUserWhereInput2ᚕᚖtodoᚋentᚐUserWhereInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		}
 	}
 
@@ -6248,7 +4604,7 @@ func (ec *executionContext) unmarshalInputUpdateTodoInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"text", "done", "clearUser", "userID"}
+	fieldsInOrder := [...]string{"text", "done"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -6271,538 +4627,6 @@ func (ec *executionContext) unmarshalInputUpdateTodoInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "clearUser":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clearUser"))
-			it.ClearUser, err = ec.unmarshalOBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userID":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
-			it.UserID, err = ec.unmarshalOID2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, obj interface{}) (ent.UpdateUserInput, error) {
-	var it ent.UpdateUserInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"username", "password", "addTodoIDs", "removeTodoIDs"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "username":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			it.Username, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "password":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "addTodoIDs":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addTodoIDs"))
-			it.AddTodoIDs, err = ec.unmarshalOID2ᚕintᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "removeTodoIDs":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("removeTodoIDs"))
-			it.RemoveTodoIDs, err = ec.unmarshalOID2ᚕintᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUserOrder(ctx context.Context, obj interface{}) (ent.UserOrder, error) {
-	var it ent.UserOrder
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	if _, present := asMap["direction"]; !present {
-		asMap["direction"] = "ASC"
-	}
-
-	fieldsInOrder := [...]string{"direction", "field"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "direction":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			it.Direction, err = ec.unmarshalNOrderDirection2todoᚋentᚐOrderDirection(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "field":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			it.Field, err = ec.unmarshalNUserOrderField2ᚖtodoᚋentᚐUserOrderField(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, obj interface{}) (ent.UserWhereInput, error) {
-	var it ent.UserWhereInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "username", "usernameNEQ", "usernameIn", "usernameNotIn", "usernameGT", "usernameGTE", "usernameLT", "usernameLTE", "usernameContains", "usernameHasPrefix", "usernameHasSuffix", "usernameEqualFold", "usernameContainsFold", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "hasTodos", "hasTodosWith"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "not":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("not"))
-			it.Not, err = ec.unmarshalOUserWhereInput2ᚖtodoᚋentᚐUserWhereInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "and":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOUserWhereInput2ᚕᚖtodoᚋentᚐUserWhereInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "or":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOUserWhereInput2ᚕᚖtodoᚋentᚐUserWhereInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOID2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "idNEQ":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNEQ"))
-			it.IDNEQ, err = ec.unmarshalOID2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "idIn":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idIn"))
-			it.IDIn, err = ec.unmarshalOID2ᚕintᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "idNotIn":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idNotIn"))
-			it.IDNotIn, err = ec.unmarshalOID2ᚕintᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "idGT":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGT"))
-			it.IDGT, err = ec.unmarshalOID2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "idGTE":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idGTE"))
-			it.IDGTE, err = ec.unmarshalOID2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "idLT":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLT"))
-			it.IDLT, err = ec.unmarshalOID2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "idLTE":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idLTE"))
-			it.IDLTE, err = ec.unmarshalOID2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "username":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			it.Username, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameNEQ":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameNEQ"))
-			it.UsernameNEQ, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameIn":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameIn"))
-			it.UsernameIn, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameNotIn":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameNotIn"))
-			it.UsernameNotIn, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameGT":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameGT"))
-			it.UsernameGT, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameGTE":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameGTE"))
-			it.UsernameGTE, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameLT":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameLT"))
-			it.UsernameLT, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameLTE":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameLTE"))
-			it.UsernameLTE, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameContains":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameContains"))
-			it.UsernameContains, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameHasPrefix":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameHasPrefix"))
-			it.UsernameHasPrefix, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameHasSuffix":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameHasSuffix"))
-			it.UsernameHasSuffix, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameEqualFold":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameEqualFold"))
-			it.UsernameEqualFold, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "usernameContainsFold":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameContainsFold"))
-			it.UsernameContainsFold, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAtNEQ":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtNEQ"))
-			it.CreatedAtNEQ, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAtIn":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtIn"))
-			it.CreatedAtIn, err = ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAtNotIn":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtNotIn"))
-			it.CreatedAtNotIn, err = ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAtGT":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtGT"))
-			it.CreatedAtGT, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAtGTE":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtGTE"))
-			it.CreatedAtGTE, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAtLT":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtLT"))
-			it.CreatedAtLT, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAtLTE":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAtLTE"))
-			it.CreatedAtLTE, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAtNEQ":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtNEQ"))
-			it.UpdatedAtNEQ, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAtIn":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtIn"))
-			it.UpdatedAtIn, err = ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAtNotIn":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtNotIn"))
-			it.UpdatedAtNotIn, err = ec.unmarshalOTime2ᚕtimeᚐTimeᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAtGT":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtGT"))
-			it.UpdatedAtGT, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAtGTE":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtGTE"))
-			it.UpdatedAtGTE, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAtLT":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtLT"))
-			it.UpdatedAtLT, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAtLTE":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAtLTE"))
-			it.UpdatedAtLTE, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "hasTodos":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTodos"))
-			it.HasTodos, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "hasTodosWith":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasTodosWith"))
-			it.HasTodosWith, err = ec.unmarshalOTodoWhereInput2ᚕᚖtodoᚋentᚐTodoWhereInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUsersQueryInput(ctx context.Context, obj interface{}) (models.UsersQueryInput, error) {
-	var it models.UsersQueryInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"after", "first", "before", "last", "orderBy", "where"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "after":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-			it.After, err = ec.unmarshalOCursor2ᚖtodoᚋentᚐCursor(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "first":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-			it.First, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "before":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-			it.Before, err = ec.unmarshalOCursor2ᚖtodoᚋentᚐCursor(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "last":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-			it.Last, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "orderBy":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
-			it.OrderBy, err = ec.unmarshalOUserOrder2ᚖtodoᚋentᚐUserOrder(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "where":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOUserWhereInput2ᚖtodoᚋentᚐUserWhereInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		}
 	}
 
@@ -6822,11 +4646,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Todo(ctx, sel, obj)
-	case *ent.User:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._User(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -6877,33 +4696,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteTodo(ctx, field)
-			})
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "createUser":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createUser(ctx, field)
-			})
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "updateUser":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateUser(ctx, field)
-			})
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "deleteUser":
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteUser(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -7048,29 +4840,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "users":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_users(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "Todo":
 			field := field
 
@@ -7081,29 +4850,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_Todo(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
-		case "User":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_User(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7157,10 +4903,6 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 		return ec._Subscription_todos(ctx, fields[0])
 	case "Todo":
 		return ec._Subscription_Todo(ctx, fields[0])
-	case "users":
-		return ec._Subscription_users(ctx, fields[0])
-	case "User":
-		return ec._Subscription_User(ctx, fields[0])
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
@@ -7181,53 +4923,36 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Todo_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "createdAt":
 
 			out.Values[i] = ec._Todo_createdAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "updatedAt":
 
 			out.Values[i] = ec._Todo_updatedAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "text":
 
 			out.Values[i] = ec._Todo_text(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "done":
 
 			out.Values[i] = ec._Todo_done(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
-		case "user":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Todo_user(ctx, field, obj)
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7295,146 +5020,6 @@ func (ec *executionContext) _TodoEdge(ctx context.Context, sel ast.SelectionSet,
 		case "cursor":
 
 			out.Values[i] = ec._TodoEdge_cursor(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var userImplementors = []string{"User", "Node"}
-
-func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *ent.User) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("User")
-		case "id":
-
-			out.Values[i] = ec._User_id(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "username":
-
-			out.Values[i] = ec._User_username(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "createdAt":
-
-			out.Values[i] = ec._User_createdAt(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "updatedAt":
-
-			out.Values[i] = ec._User_updatedAt(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "todos":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._User_todos(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var userConnectionImplementors = []string{"UserConnection"}
-
-func (ec *executionContext) _UserConnection(ctx context.Context, sel ast.SelectionSet, obj *ent.UserConnection) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, userConnectionImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("UserConnection")
-		case "edges":
-
-			out.Values[i] = ec._UserConnection_edges(ctx, field, obj)
-
-		case "pageInfo":
-
-			out.Values[i] = ec._UserConnection_pageInfo(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "totalCount":
-
-			out.Values[i] = ec._UserConnection_totalCount(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var userEdgeImplementors = []string{"UserEdge"}
-
-func (ec *executionContext) _UserEdge(ctx context.Context, sel ast.SelectionSet, obj *ent.UserEdge) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, userEdgeImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("UserEdge")
-		case "node":
-
-			out.Values[i] = ec._UserEdge_node(ctx, field, obj)
-
-		case "cursor":
-
-			out.Values[i] = ec._UserEdge_cursor(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -7788,11 +5373,6 @@ func (ec *executionContext) unmarshalNCreateTodoInput2todoᚋentᚐCreateTodoInp
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateUserInput2todoᚋentᚐCreateUserInput(ctx context.Context, v interface{}) (ent.CreateUserInput, error) {
-	res, err := ec.unmarshalInputCreateUserInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNCursor2todoᚋentᚐCursor(ctx context.Context, v interface{}) (ent.Cursor, error) {
 	var res ent.Cursor
 	err := res.UnmarshalGQL(v)
@@ -8009,60 +5589,6 @@ func (ec *executionContext) unmarshalNTodoWhereInput2ᚖtodoᚋentᚐTodoWhereIn
 func (ec *executionContext) unmarshalNUpdateTodoInput2todoᚋentᚐUpdateTodoInput(ctx context.Context, v interface{}) (ent.UpdateTodoInput, error) {
 	res, err := ec.unmarshalInputUpdateTodoInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateUserInput2todoᚋentᚐUpdateUserInput(ctx context.Context, v interface{}) (ent.UpdateUserInput, error) {
-	res, err := ec.unmarshalInputUpdateUserInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNUser2todoᚋentᚐUser(ctx context.Context, sel ast.SelectionSet, v ent.User) graphql.Marshaler {
-	return ec._User(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNUser2ᚖtodoᚋentᚐUser(ctx context.Context, sel ast.SelectionSet, v *ent.User) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNUserConnection2todoᚋentᚐUserConnection(ctx context.Context, sel ast.SelectionSet, v ent.UserConnection) graphql.Marshaler {
-	return ec._UserConnection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNUserConnection2ᚖtodoᚋentᚐUserConnection(ctx context.Context, sel ast.SelectionSet, v *ent.UserConnection) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._UserConnection(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNUserOrderField2ᚖtodoᚋentᚐUserOrderField(ctx context.Context, v interface{}) (*ent.UserOrderField, error) {
-	var res = new(ent.UserOrderField)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNUserOrderField2ᚖtodoᚋentᚐUserOrderField(ctx context.Context, sel ast.SelectionSet, v *ent.UserOrderField) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return v
-}
-
-func (ec *executionContext) unmarshalNUserWhereInput2ᚖtodoᚋentᚐUserWhereInput(ctx context.Context, v interface{}) (*ent.UserWhereInput, error) {
-	res, err := ec.unmarshalInputUserWhereInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -8641,105 +6167,6 @@ func (ec *executionContext) unmarshalOTodosQueryInput2ᚖtodoᚋgraphᚋmodels�
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputTodosQueryInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOUser2ᚖtodoᚋentᚐUser(ctx context.Context, sel ast.SelectionSet, v *ent.User) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOUserEdge2ᚕᚖtodoᚋentᚐUserEdge(ctx context.Context, sel ast.SelectionSet, v []*ent.UserEdge) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOUserEdge2ᚖtodoᚋentᚐUserEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
-func (ec *executionContext) marshalOUserEdge2ᚖtodoᚋentᚐUserEdge(ctx context.Context, sel ast.SelectionSet, v *ent.UserEdge) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._UserEdge(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOUserOrder2ᚖtodoᚋentᚐUserOrder(ctx context.Context, v interface{}) (*ent.UserOrder, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputUserOrder(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOUserWhereInput2ᚕᚖtodoᚋentᚐUserWhereInputᚄ(ctx context.Context, v interface{}) ([]*ent.UserWhereInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*ent.UserWhereInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNUserWhereInput2ᚖtodoᚋentᚐUserWhereInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalOUserWhereInput2ᚖtodoᚋentᚐUserWhereInput(ctx context.Context, v interface{}) (*ent.UserWhereInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputUserWhereInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOUsersQueryInput2ᚖtodoᚋgraphᚋmodelsᚐUsersQueryInput(ctx context.Context, v interface{}) (*models.UsersQueryInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputUsersQueryInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

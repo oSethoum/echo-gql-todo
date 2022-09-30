@@ -18,15 +18,6 @@ type TodosQueryInput struct {
 	Where   *ent.TodoWhereInput `json:"where"`
 }
 
-type UsersQueryInput struct {
-	After   *ent.Cursor         `json:"after"`
-	First   *int                `json:"first"`
-	Before  *ent.Cursor         `json:"before"`
-	Last    *int                `json:"last"`
-	OrderBy *ent.UserOrder      `json:"orderBy"`
-	Where   *ent.UserWhereInput `json:"where"`
-}
-
 type Event string
 
 const (

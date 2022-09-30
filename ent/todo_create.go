@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"time"
 	"todo/ent/todo"
-	"todo/ent/user"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -69,25 +68,6 @@ func (tc *TodoCreate) SetNillableDone(b *bool) *TodoCreate {
 	return tc
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (tc *TodoCreate) SetUserID(id int) *TodoCreate {
-	tc.mutation.SetUserID(id)
-	return tc
-}
-
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (tc *TodoCreate) SetNillableUserID(id *int) *TodoCreate {
-	if id != nil {
-		tc = tc.SetUserID(*id)
-	}
-	return tc
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (tc *TodoCreate) SetUser(u *User) *TodoCreate {
-	return tc.SetUserID(u.ID)
-}
-
 // Mutation returns the TodoMutation object of the builder.
 func (tc *TodoCreate) Mutation() *TodoMutation {
 	return tc.mutation
@@ -99,9 +79,7 @@ func (tc *TodoCreate) Save(ctx context.Context) (*Todo, error) {
 		err  error
 		node *Todo
 	)
-	if err := tc.defaults(); err != nil {
-		return nil, err
-	}
+	tc.defaults()
 	if len(tc.hooks) == 0 {
 		if err = tc.check(); err != nil {
 			return nil, err
@@ -166,18 +144,12 @@ func (tc *TodoCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tc *TodoCreate) defaults() error {
+func (tc *TodoCreate) defaults() {
 	if _, ok := tc.mutation.CreatedAt(); !ok {
-		if todo.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized todo.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := todo.DefaultCreatedAt()
 		tc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := tc.mutation.UpdatedAt(); !ok {
-		if todo.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized todo.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := todo.DefaultUpdatedAt()
 		tc.mutation.SetUpdatedAt(v)
 	}
@@ -185,7 +157,6 @@ func (tc *TodoCreate) defaults() error {
 		v := todo.DefaultDone
 		tc.mutation.SetDone(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -260,26 +231,6 @@ func (tc *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 			Column: todo.FieldDone,
 		})
 		_node.Done = value
-	}
-	if nodes := tc.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   todo.UserTable,
-			Columns: []string{todo.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: user.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.user_todos = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

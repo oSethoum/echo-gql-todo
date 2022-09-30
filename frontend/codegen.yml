@@ -1,0 +1,10 @@
+overwrite: true
+schema: "http://localhost:3001/query"
+documents: "src/**/*.graphql"
+generates:
+  src/graphql/index.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "urql-introspection"
+      - "typescript-urql"

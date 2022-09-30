@@ -5,7 +5,6 @@ package resolvers
 
 import (
 	"context"
-	"todo/auth"
 	"todo/ent"
 	"todo/graph/generated"
 	"todo/graph/models"
@@ -54,16 +53,17 @@ func (r *queryResolver) Todo(ctx context.Context, id int) (*ent.Todo, error) {
 
 // Todos is the resolver for the todos field.
 func (r *subscriptionResolver) Todos(ctx context.Context, event models.Event, query *models.TodosQueryInput) (<-chan *ent.TodoConnection, error) {
-	socketClient := ctx.Value(auth.ContextKey{Key: "socketClient"}).(string)
+	clientId := ID()
+
 	channel := make(chan *ent.TodoConnection, 1)
 	println("----------------------------------------------------")
-	println("Socket Client: ", socketClient)
+	println("Socket Client: ", clientId)
 	println("Entity: Todos")
 	println("Event: ", event)
 	println("----------------------------------------------------")
 
 	r.TodosListennersMutext.Lock()
-	r.TodosListenners[socketClient] = TodosListenner{
+	r.TodosListenners[clientId] = TodosListenner{
 		Context: ctx,
 		Channel: channel,
 		Event:   event,
@@ -74,11 +74,11 @@ func (r *subscriptionResolver) Todos(ctx context.Context, event models.Event, qu
 	go func() {
 		<-ctx.Done()
 		println("----------------------------------------------------")
-		println("Socket Client: ", socketClient)
+		println("Socket Client: ", clientId)
 		println("Disconnected")
 		println("----------------------------------------------------")
 		r.TodosListennersMutext.Lock()
-		delete(r.TodosListenners, socketClient)
+		delete(r.TodosListenners, clientId)
 		r.TodosListennersMutext.Unlock()
 	}()
 
@@ -87,17 +87,17 @@ func (r *subscriptionResolver) Todos(ctx context.Context, event models.Event, qu
 
 // Todo is the resolver for the Todo field.
 func (r *subscriptionResolver) Todo(ctx context.Context, event models.Event, id int) (<-chan *ent.Todo, error) {
-	socketClient := ctx.Value(auth.ContextKey{Key: "socketClient"}).(string)
+	clientId := ID()
 	channel := make(chan *ent.Todo, 1)
 	println("----------------------------------------------------")
-	println("Socket Client: ", socketClient)
+	println("Socket Client: ", clientId)
 	println("Entity: Todos")
 	println("Event: ", event)
 	println("Disconnected")
 	println("----------------------------------------------------")
 
 	r.TodoListennersMutext.Lock()
-	r.TodoListenners[socketClient] = TodoListenner{
+	r.TodoListenners[clientId] = TodoListenner{
 		Context: ctx,
 		ID:      id,
 		Channel: channel,
@@ -109,12 +109,12 @@ func (r *subscriptionResolver) Todo(ctx context.Context, event models.Event, id 
 	go func() {
 		<-ctx.Done()
 		println("----------------------------------------------------")
-		println("Socket Client: ", socketClient)
+		println("Socket Client: ", clientId)
 		println("Disconnected")
 		println("----------------------------------------------------")
 
 		r.TodoListennersMutext.Lock()
-		delete(r.TodoListenners, socketClient)
+		delete(r.TodoListenners, clientId)
 		r.TodoListennersMutext.Unlock()
 	}()
 

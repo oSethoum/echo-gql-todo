@@ -9,7 +9,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"todo/ent/todo"
-	"todo/ent/user"
 
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent/dialect"
@@ -52,7 +51,7 @@ func (t *Todo) Node(ctx context.Context) (node *Node, err error) {
 		ID:     t.ID,
 		Type:   "Todo",
 		Fields: make([]*Field, 4),
-		Edges:  make([]*Edge, 1),
+		Edges:  make([]*Edge, 0),
 	}
 	var buf []byte
 	if buf, err = json.Marshal(t.CreatedAt); err != nil {
@@ -86,61 +85,6 @@ func (t *Todo) Node(ctx context.Context) (node *Node, err error) {
 		Type:  "bool",
 		Name:  "done",
 		Value: string(buf),
-	}
-	node.Edges[0] = &Edge{
-		Type: "User",
-		Name: "user",
-	}
-	err = t.QueryUser().
-		Select(user.FieldID).
-		Scan(ctx, &node.Edges[0].IDs)
-	if err != nil {
-		return nil, err
-	}
-	return node, nil
-}
-
-func (u *User) Node(ctx context.Context) (node *Node, err error) {
-	node = &Node{
-		ID:     u.ID,
-		Type:   "User",
-		Fields: make([]*Field, 3),
-		Edges:  make([]*Edge, 1),
-	}
-	var buf []byte
-	if buf, err = json.Marshal(u.Username); err != nil {
-		return nil, err
-	}
-	node.Fields[0] = &Field{
-		Type:  "string",
-		Name:  "username",
-		Value: string(buf),
-	}
-	if buf, err = json.Marshal(u.CreatedAt); err != nil {
-		return nil, err
-	}
-	node.Fields[1] = &Field{
-		Type:  "time.Time",
-		Name:  "created_at",
-		Value: string(buf),
-	}
-	if buf, err = json.Marshal(u.UpdatedAt); err != nil {
-		return nil, err
-	}
-	node.Fields[2] = &Field{
-		Type:  "time.Time",
-		Name:  "updated_at",
-		Value: string(buf),
-	}
-	node.Edges[0] = &Edge{
-		Type: "Todo",
-		Name: "todos",
-	}
-	err = u.QueryTodos().
-		Select(todo.FieldID).
-		Scan(ctx, &node.Edges[0].IDs)
-	if err != nil {
-		return nil, err
 	}
 	return node, nil
 }
@@ -215,18 +159,6 @@ func (c *Client) noder(ctx context.Context, table string, id int) (Noder, error)
 		query := c.Todo.Query().
 			Where(todo.ID(id))
 		query, err := query.CollectFields(ctx, "Todo")
-		if err != nil {
-			return nil, err
-		}
-		n, err := query.Only(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return n, nil
-	case user.Table:
-		query := c.User.Query().
-			Where(user.ID(id))
-		query, err := query.CollectFields(ctx, "User")
 		if err != nil {
 			return nil, err
 		}
@@ -312,22 +244,6 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 		query := c.Todo.Query().
 			Where(todo.IDIn(ids...))
 		query, err := query.CollectFields(ctx, "Todo")
-		if err != nil {
-			return nil, err
-		}
-		nodes, err := query.All(ctx)
-		if err != nil {
-			return nil, err
-		}
-		for _, node := range nodes {
-			for _, noder := range idmap[node.ID] {
-				*noder = node
-			}
-		}
-	case user.Table:
-		query := c.User.Query().
-			Where(user.IDIn(ids...))
-		query, err := query.CollectFields(ctx, "User")
 		if err != nil {
 			return nil, err
 		}

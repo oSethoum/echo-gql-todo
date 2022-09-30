@@ -6,8 +6,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-
-	_ "todo/ent/runtime"
 )
 
 func main() {
@@ -15,7 +13,7 @@ func main() {
 	defer db.DB.Close()
 
 	e := echo.New()
-	e.Use(middleware.Logger())
+	// e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},

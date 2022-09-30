@@ -1,0 +1,45 @@
+query Todo($id: ID!) {
+  Todo(id: $id) {
+    id
+    createdAt
+    updatedAt
+    text
+    done
+  }
+}
+
+query Todos(
+  $before: Cursor
+  $after: Cursor
+  $first: Int
+  $last: Int
+  $orderBy: TodoOrder
+  $where: TodoWhereInput
+) {
+  todos(
+    before: $before
+    after: $after
+    first: $first
+    last: $last
+    orderBy: $orderBy
+    where: $where
+  ) {
+    edges {
+      node {
+        id
+        createdAt
+        updatedAt
+        text
+        done
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}

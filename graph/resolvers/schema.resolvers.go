@@ -24,11 +24,6 @@ func (r *queryResolver) Todos(ctx context.Context, after *ent.Cursor, first *int
 	return r.Client.Todo.Query().Paginate(ctx, after, first, before, last, ent.WithTodoOrder(orderBy), ent.WithTodoFilter(where.Filter))
 }
 
-// Users is the resolver for the Users field.
-func (r *queryResolver) Users(ctx context.Context, after *ent.Cursor, first *int, before *ent.Cursor, last *int, orderBy *ent.UserOrder, where *ent.UserWhereInput) (*ent.UserConnection, error) {
-	return r.Client.User.Query().Paginate(ctx, after, first, before, last, ent.WithUserOrder(orderBy), ent.WithUserFilter(where.Filter))
-}
-
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 

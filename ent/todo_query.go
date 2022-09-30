@@ -4,12 +4,10 @@ package ent
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math"
 	"todo/ent/predicate"
 	"todo/ent/todo"
-	"todo/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -25,8 +23,6 @@ type TodoQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Todo
-	withUser   *UserQuery
-	withFKs    bool
 	modifiers  []func(*sql.Selector)
 	loadTotal  []func(context.Context, []*Todo) error
 	// intermediate query (i.e. traversal path).
@@ -63,28 +59,6 @@ func (tq *TodoQuery) Unique(unique bool) *TodoQuery {
 func (tq *TodoQuery) Order(o ...OrderFunc) *TodoQuery {
 	tq.order = append(tq.order, o...)
 	return tq
-}
-
-// QueryUser chains the current query on the "user" edge.
-func (tq *TodoQuery) QueryUser() *UserQuery {
-	query := &UserQuery{config: tq.config}
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := tq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := tq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(todo.Table, todo.FieldID, selector),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, todo.UserTable, todo.UserColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first Todo entity from the query.
@@ -268,23 +242,11 @@ func (tq *TodoQuery) Clone() *TodoQuery {
 		offset:     tq.offset,
 		order:      append([]OrderFunc{}, tq.order...),
 		predicates: append([]predicate.Todo{}, tq.predicates...),
-		withUser:   tq.withUser.Clone(),
 		// clone intermediate query.
 		sql:    tq.sql.Clone(),
 		path:   tq.path,
 		unique: tq.unique,
 	}
-}
-
-// WithUser tells the query-builder to eager-load the nodes that are connected to
-// the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TodoQuery) WithUser(opts ...func(*UserQuery)) *TodoQuery {
-	query := &UserQuery{config: tq.config}
-	for _, opt := range opts {
-		opt(query)
-	}
-	tq.withUser = query
-	return tq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -348,37 +310,20 @@ func (tq *TodoQuery) prepareQuery(ctx context.Context) error {
 		}
 		tq.sql = prev
 	}
-	if todo.Policy == nil {
-		return errors.New("ent: uninitialized todo.Policy (forgotten import ent/runtime?)")
-	}
-	if err := todo.Policy.EvalQuery(ctx, tq); err != nil {
-		return err
-	}
 	return nil
 }
 
 func (tq *TodoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Todo, error) {
 	var (
-		nodes       = []*Todo{}
-		withFKs     = tq.withFKs
-		_spec       = tq.querySpec()
-		loadedTypes = [1]bool{
-			tq.withUser != nil,
-		}
+		nodes = []*Todo{}
+		_spec = tq.querySpec()
 	)
-	if tq.withUser != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, todo.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Todo).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Todo{config: tq.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(tq.modifiers) > 0 {
@@ -393,48 +338,12 @@ func (tq *TodoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Todo, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := tq.withUser; query != nil {
-		if err := tq.loadUser(ctx, query, nodes, nil,
-			func(n *Todo, e *User) { n.Edges.User = e }); err != nil {
-			return nil, err
-		}
-	}
 	for i := range tq.loadTotal {
 		if err := tq.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
-}
-
-func (tq *TodoQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Todo, init func(*Todo), assign func(*Todo, *User)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Todo)
-	for i := range nodes {
-		if nodes[i].user_todos == nil {
-			continue
-		}
-		fk := *nodes[i].user_todos
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	query.Where(user.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_todos" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
 }
 
 func (tq *TodoQuery) sqlCount(ctx context.Context) (int, error) {
